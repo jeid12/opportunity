@@ -1,0 +1,5 @@
+/env/                         # Ignores your virtual environment folder
+google_credentials.json       # Prevents Google service account credentials from being pushed
+google_service_account.json   # Also prevents another common name for credentials
+__pycache__/                  # Ignores Python cache folders
+*.pyc                         # Ignores compiled Python files

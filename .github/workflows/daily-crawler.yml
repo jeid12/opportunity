@@ -1,0 +1,32 @@
+name: Daily Crawler
+
+on:
+  schedule:
+    - cron: '30 0 * * *'  # Every day at 00:30 UTC
+  workflow_dispatch:      # Allow manual run from GitHub
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install requests beautifulsoup4
+
+    - name: Run crawler
+      run: python main.py
+
+    - name: Upload results
+      uses: actions/upload-artifact@v3
+      with:
+        name: crawl-results
+        path: output/results.csv

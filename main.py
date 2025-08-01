@@ -240,45 +240,34 @@ def extract_detailed_opportunities(soup, base_url):
     return unique_opportunities[:12]
 
 def setup_google_sheets_auth():
-    """Setup Google Sheets authentication, handle Colab (local file) vs GitHub Actions (secret env)"""
-    import base64
-    
+    """Setup Google Sheets authentication with SSL fix"""
     scope = [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive'
     ]
     
-    # Check if running in GitHub Actions by detecting environment variable
-    github_secret = os.getenv("GOOGLE_CREDENTIALS_JSON_BASE64")
-    local_cred_file = "google_credentials.json"
+    service_account_file = 'google_credentials.json'
     
-    if github_secret:
-        # Running in GitHub Actions: decode base64 secret and save to file temporarily
-        print("🔑 Using Google credentials from GitHub Secret (base64)...")
-        creds_json = base64.b64decode(github_secret).decode("utf-8")
-        with open(local_cred_file, "w") as f:
-            f.write(creds_json)
-    else:
-        # Not GitHub Actions — expect local file (Colab)
-        print("📂 Using local google_credentials.json file...")
-        if not os.path.exists(local_cred_file):
-            print("⚠️  Missing Google credentials file.")
-            return None
+    if not os.path.exists(service_account_file):
+        print("⚠️  Missing Google credentials file.")
+        return None
     
     try:
-        credentials = Credentials.from_service_account_file(local_cred_file, scopes=scope)
+        credentials = Credentials.from_service_account_file(service_account_file, scopes=scope)
 
-        # SSL and HTTP setup same as before
+        # 🔥 Disable SSL verification globally for AuthorizedHttp
         http = urllib3.PoolManager(cert_reqs='CERT_NONE')
         authed_http = AuthorizedHttp(credentials, http)
+
+        # 🔧 Monkey-patch gspread's default transport to use our insecure one
         gspread.auth.DEFAULT_HTTP_CLIENT = authed_http
 
         gc = gspread.authorize(credentials)
         return gc
+
     except Exception as e:
         print(f"❌ Failed to authenticate with Google Sheets: {e}")
         return None
-
 
 def upload_to_google_sheets(results, sheet_name="Opportunities"):
     """Upload results to Google Sheets"""

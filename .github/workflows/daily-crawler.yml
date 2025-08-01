@@ -18,12 +18,9 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Create Google credentials file
-      run: echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > google_credentials.json
-
     - name: Install dependencies
       run: |
-        pip install requests beautifulsoup4 gspread google-auth
+        pip install requests beautifulsoup4
 
     - name: Run crawler
       run: python main.py
@@ -32,6 +29,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: crawl-results
-
         path: output/opportunity.csv
-

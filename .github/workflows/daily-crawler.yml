@@ -20,7 +20,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install requests beautifulsoup4 gspread google-auth urllib3
+        pip install requests beautifulsoup4 gspread google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+
 
     - name: Write Google credentials to file
       run: |
@@ -36,3 +37,4 @@ jobs:
       with:
         name: crawl-results
         path: output/
+

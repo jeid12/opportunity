@@ -3,7 +3,7 @@ name: Daily Crawler
 on:
   schedule:
     - cron: '30 0 * * *'  # Every day at 00:30 UTC
-  workflow_dispatch:      # Allow manual run from GitHub
+  workflow_dispatch:
 
 jobs:
   crawl:
@@ -20,7 +20,13 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install requests beautifulsoup4
+        pip install requests beautifulsoup4 gspread google-auth urllib3
+
+    - name: Write Google credentials to file
+      run: |
+        echo "$GOOGLE_CREDENTIALS" > google_credentials.json
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     - name: Run crawler
       run: python main.py
@@ -29,4 +35,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: crawl-results
-        path: output/opportunity.csv
+        path: output/
